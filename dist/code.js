@@ -1619,32 +1619,43 @@ downloadBtn.onclick = async () => {
 
 async function updateModel(newProvider) {
   if (newProvider !== currentProvider) {
-    await window.localforage.removeItem(videoId)
-    window.location.href = `./?id=${videoId}&model=${newProvider}&language=${selectLanguage.value}`
+    currentProvider = newProvider;
+    await window.localforage.removeItem(videoId);
+    // Update the model without reloading the page
+    model = await getGenerativeModel(window.localStorage.API_KEY, { model: newProvider });
+    jsonModel = await getGenerativeModel(window.localStorage.API_KEY, { model: newProvider, generationConfig: jsonGenerationConfig });
+    console.log(`Model switched to: ${newProvider}`);
   }
 }
 
-clearCacheBtn.onclick = async () => {
-  await window.localforage.removeItem(videoId)
-  window.location.reload()
-}
+document.addEventListener('DOMContentLoaded', () => {
+  // Clear cache and reload the page
+  clearCacheBtn.onclick = async () => {
+    await window.localforage.removeItem(videoId);
+    window.location.reload();
+  };
 
-for (let l in llmProviders) {
-  let option = document.createElement('option')
-  option.value = l
-  option.textContent = l
-  option.selected = l === currentProvider
-  selectProvider.appendChild(option)
-}
-selectProvider.onchange = () => updateModel(selectProvider.value)
+  // Populate the model provider dropdown and set up the onchange event
+  for (let l in llmProviders) {
+    let option = document.createElement('option');
+    option.value = l;
+    option.textContent = l;
+    option.selected = l === currentProvider;
+    selectProvider.appendChild(option);
+  }
+  selectProvider.onchange = () => updateModel(selectProvider.value);
 
-summaryBtn.onclick = () => {
-  summaryBtn.disabled = true
-  summaryBtn.textContent = 'Summarizing...'
-  computeSummary(json, videoId, transcript, languageCode, vocab)
-}
-let searchTerm = params.get('q')
-if (searchTerm > '') {
-    q.value = searchTerm
-    search(searchTerm, false)
-}
+  // Summarize the content
+  summaryBtn.onclick = () => {
+    summaryBtn.disabled = true;
+    summaryBtn.textContent = 'Summarizing...';
+    computeSummary(json, videoId, transcript, languageCode, vocab);
+  };
+
+  // Handle search term if present in the URL
+  let searchTerm = params.get('q');
+  if (searchTerm > '') {
+    q.value = searchTerm;
+    search(searchTerm, false);
+  }
+});
