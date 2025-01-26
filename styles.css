@@ -465,7 +465,7 @@ footer {
 
 #selectLanguage {
   max-width: 100px;
-  background-color: transparent;
+  background-color: black; /* Change background color to black */
   border: 0;
   color: white;
   white-space: nowrap; /* Prevent text wrapping */
