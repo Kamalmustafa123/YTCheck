@@ -1,0 +1,739 @@
+:root {
+    --font-name: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    --byellow: #F38181;
+    --showts: block;
+    --showheader: block;
+    --orange: rgb(245, 220, 51);
+    --trackcolor: #f1f1f1;
+    --thumbcolor: #888;
+    --rangeheight: 16px;
+    --radius: 5px;
+    --top: 0px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  box-sizing: border-box;
+  padding: 0px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  color: var(--textcolor);
+  background-color: var(--bg);
+  font-family: var(--font-name);
+  font-size: 18px;
+  line-height: 1.4;
+  overflow-x: hidden;
+}
+
+input[type=text] {
+    padding: 8px;
+    font-size: 1rem;
+    font-family: var(--font-name);
+    border: 2px solid lightgray;
+    border-radius: var(--radius);
+    max-width: 60%;
+}
+
+input[type=text]:focus {
+    outline: none;
+}
+
+button {
+    border: 0;
+    margin: 16px 0;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 1rem;
+    font-family: var(--font-name);
+    background-color: var(--byellow);
+    color: white;
+    cursor: pointer;
+    transition: opacity 0.1s ease-in-out;
+}
+
+button:hover {
+    opacity: 1.0;
+    outline: 2px solid rgb(245, 220, 51);
+}
+
+input[type=color] {
+    border-radius: 4px;
+    height: 36px;
+    border: 0;
+    background-color: transparent;
+}
+
+#playercontainer {
+    width: 100%;
+    aspect-ratio: 16/9;
+    max-width: 100%;
+    margin: 0 auto;
+    display: block;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background-color: black;
+}
+
+#captions {
+    position: absolute;
+    bottom: 0;
+    width: calc(100% - 32px);
+    margin: 0px;
+    padding: 16px;
+    font-size: 1.2rem;
+    user-select: none;
+    font-weight: bold;
+    color: var(--orange);
+    -webkit-text-stroke: 6px black;
+    paint-order: stroke fill;
+    text-align: center;
+    letter-spacing: 1px;
+    line-height: 1;
+    font-family: 'Montserrat';
+    display: none;
+}
+
+#player {
+    max-width: 100%;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#realplayer {
+    width: 160px;
+    height: 80px;
+    position: fixed;
+    left: -320px;
+    top: -320px;
+    display: none;
+}
+
+#player img {
+    width: 320px;
+    aspect-ratio: 16/9;
+}
+
+#summary {
+    font-style: italic;
+}
+
+.r {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 8px;
+}
+
+.r img {
+    width: 128px;
+    aspect-ratio: 16/9;
+}
+
+.highlighted {
+    background-color: var(--orange) !important;
+}
+
+.ts {
+    font-size: 0.9rem;
+    font-weight: normal;
+    font-family: var(--font-name);
+    width: fit-content;
+    color: var(--byellow);
+    cursor: pointer;
+    display: var(--showts);
+    padding-top: 8px;
+}
+
+.info {
+  text-align: center;
+}
+
+.header {
+    font-weight: bold;
+    font-size: 1.2rem;
+    font-family: var(--font-name);
+    line-height: 1.2;
+    margin-top: 32px;
+    max-width: fit-content;
+}
+
+.llm {
+  color: red;
+}
+.generating {
+  display: none;
+}
+
+.headername {
+    line-height: 1.2;
+    display: var(--showheader);
+}
+
+div.video-annotations {
+    display: none;
+}
+
+.yawas {
+    background-color: var(--byellow);
+}
+
+#tools {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  display: none;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  z-index: 3;
+}
+.btn {
+  font-size: 20px;
+  width: 48px;
+  aspect-ratio: 1;
+  height: 48px;
+  background-color: var(--byellow);
+  color: white;
+  border-radius: 50rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.btn:hover {
+  box-shadow: 0 0 4px rgba(0,0,0,0.5);
+}
+h4 {
+    margin: 8px auto;
+    font-size: 120%;
+}
+
+#container {
+  display: none;
+}
+#col1 {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+select {
+  font-family: var(--font-name);
+  font-size: 1rem;
+}
+
+.hori {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    gap: 8px;
+}
+
+#summaryBtn {
+  font-style: normal;
+}
+
+#timeline {
+    width: 100%;
+}
+
+a {
+    color: var(--byellow);
+    text-decoration: none;
+}
+
+#currentTime {
+    font-size: 0.9rem;
+    color: var(--byellow);
+    cursor: pointer;
+    user-select: none;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+    margin: 8px 0;
+}
+
+input[type="range"]:focus {
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    background-color: var(--trackcolor);
+    border-radius: 0rem;
+    height: 4px;
+    border-radius: 50rem;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: 0px;
+    background-color: var(--byellow);
+    height: 16px;
+    margin-top: -6px;
+    width: var(--rangeheight);
+    border-radius: 50rem;
+}
+
+input[type="range"]::-moz-range-track {
+    background-color: var(--trackcolor);
+    border-radius: 3px;
+    height: 0.5rem;
+}
+
+input[type="range"]::-moz-range-thumb {
+    border: none;
+    border-radius: 3px;
+    background-color: black;
+    height: 0.5rem;
+    width: 1rem;
+}
+
+#canvas {
+    background-color: black;
+    aspect-ratio: 16/9;
+    width: 100%;
+    display: none;
+}
+
+.prop {
+    display: inline-block;
+    padding: 8px 12px;
+    cursor: pointer;
+    margin: 0 4px;
+    opacity: 0.5;
+    transition: opacity 0.1s ease-in-out;
+}
+
+.prop:hover {
+    opacity: 0.8;
+}
+
+.left {
+    justify-content: flex-start;
+}
+
+.selected {
+    opacity: 1.0 !important;
+}
+
+input[type='color'] {
+    width: 200%;
+    height: 200%;
+    margin: -50%;
+}
+
+.color_picker {
+    overflow: hidden;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius);
+    border-radius: 50rem;
+    cursor: pointer;
+    border: 2px solid var(--byellow);
+}
+
+.checkbox-round {
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    border-radius: 50%;
+    vertical-align: middle;
+    border: 2px solid lightgray;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.checkbox-round:checked {
+    background-color: var(--byellow);
+}
+
+#autho2r {
+    position: absolute;
+    margin: 2%;
+    left: 0;
+    top: 0;
+    background-color: transparent;
+    color: white;
+    border: 0;
+    outline: none;
+    font-family: Courgette;
+    font-size: 160%;
+    padding: 0
+}
+
+.m16 {
+    margin-left: 16px;
+}
+
+.space-between {
+    margin-right: 16px;
+    width: calc(100% - 16px);
+}
+
+#myform {
+    margin: 16px auto;
+    display: flex;
+    max-width: 420px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.flexrow {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+form {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+#items {
+    margin: 16px auto;
+    display: none;
+    width: 800px;
+    max-width: calc(100% - 32px);
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+figcaption {
+  font-style: italic;
+  opacity: 0.6;
+}
+
+.column {
+  float: left;
+  width: 33.33%;
+  padding: 16px;
+}
+
+#thumb {
+  display: none;
+}
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+footer {
+  width: 100%;
+  text-align: center;
+  position: sticky;
+  display: block;
+  padding: 8px;
+  top: 100%;
+}
+
+.fixed {
+  position: fixed !important;
+  width: 30vw !important;
+  top: 16px;
+  left: 16px;
+}
+
+#selectLanguage {
+  max-width: 100px;
+  background-color: transparent;
+  border: 0;
+  color: white;
+  white-space: nowrap; /* Prevent text wrapping */
+  text-overflow: ellipsis; /* Add ellipsis to truncated text */
+  overflow: hidden;
+  outline: none;
+}
+.bg {
+  background-color: var(--byellow);
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 50rem;
+}
+@media (orientation: portrait) {
+  .fixed, #playercontainer {
+    left: 0;
+    top: 0;
+    position: fixed;
+    width: 100% !important;
+  }
+  .row {
+    display: block;
+  }
+  .info {
+    display: none;
+  }
+  #col1 {
+    position: relative;
+  }
+  #col1, #col2 {
+      padding-top: 0!important;
+      width: 100%;
+  }
+  body {
+    padding-top: calc(100vw * 9 / 16 + 16px)!important
+  }
+  #col3 {
+      display: none;
+  }
+}
+
+h2, h1 {
+  margin: 0;
+  width: 100%;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.simplerow {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 8px;
+  align-items: center;
+}
+@keyframes spin {
+  0% { transform: rotate(0) }
+  100% { transform: rotate(360deg) }
+}
+.spinner {
+  color: var(--byellow);
+  animation: spin 1s ease-in-out infinite;
+}
+
+#thumb {
+  width: 320px;
+}
+
+#vurl {
+  display: none;
+}
+.code, code {
+  white-space: pre-wrap;
+  font-size: 1rem;
+  font-family: var(--font-name);
+  font-weight: 700;
+}
+
+.p.code > .ts {
+  display: none;
+}
+#col2, #col3 {
+  padding-top: 80px;
+}
+
+#marker {
+  height: 1px;
+}
+
+.plist {
+  margin: 0;
+}
+
+.bold {
+  font-weight: bolder;
+}
+
+#toc {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background-color: white;
+  width: 400px;
+  max-width: 100vw;
+  padding: 16px 0;
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(-100%);
+  background-color: #f1f1f1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-bottom: 64px; /* room to see the last item because of #tools */
+}
+
+.opened {
+  transform: translateX(0%)!important;
+}
+
+.tocitem {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  padding: 0 16px;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.tocitem:nth-child(odd) {
+  background-color: white;
+}
+
+.tocitem:nth-child(even) {
+  background-color: transparent;
+}
+
+.tocitem:hover {
+  font-weight: 450;
+}
+.tocitemtitle {
+  display: -webkit-box; /* Enables the flexbox-based layout for text clamping */
+  -webkit-line-clamp: 2; /* Specifies the number of lines to display */
+  -webkit-box-orient: vertical; /* Sets the box orientation to vertical */
+  overflow: hidden; /* Ensures content beyond the specified lines is hidden */
+  text-overflow: ellipsis; /* Adds ellipsis if the text overflows */
+}
+
+#downloadBtn {
+  display: none;
+}
+
+#dd {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.top {
+  padding-top: 16px!important;
+}
+
+.github-corner {
+  z-index: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+}
+
+.centeredbanner {
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+#usageDiv {
+  pointer-events: all;
+  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+  background-color: white;
+  padding: 4px 8px;
+  margin: 16px;
+  border-radius: 50rem;
+}
+@media print {
+  body {
+    padding-top: 0!important;
+  }
+  #vurl {
+    display: inline-block;
+  }
+  .btn, #tools, select, #toc {
+    display: none!important;
+  }
+  #thumb {
+    display: block;
+    width: 60%;
+  }
+  #playercontainer {
+    display: none;
+  }
+  .fa-solid {
+    display: none;
+  }
+  .row {
+    display: block;
+  }
+  #col1, #col2 {
+    width: 100%;
+    padding-top: 0!important;
+  }
+  #col3 {
+    display: none;
+  }
+  .github-corner, #highlighter, #usageDiv {
+    display: none;
+  }
+}
+.glitch {
+  /* ... (existing glitch styles) ... */
+  font-family: 'Courier New', monospace; /* Use a monospace font */
+  color: lime; /* Change text color to a hacker-like green */
+}
+
+.glitch::before {
+  /* ... (existing ::before styles) ... */
+  text-shadow: -2px 0 black; /* Change shadow to black */
+}
+
+.glitch::after {
+  /* ... (existing ::after styles) ... */
+  text-shadow: 2px 0 black; /* Change shadow to black */
+}
+
+/* Add a CRT monitor effect (optional) */
+#footer {
+  background-color: black;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 10px lime; /* Add a green glow */
+}
+
+#footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.1) 3px,
+    rgba(0, 0, 0, 0.1) 4px
+  ); /* Simulate scan lines */
+}

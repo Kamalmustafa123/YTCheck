@@ -1,0 +1,24 @@
+{
+  "name": "readable-transcripts",
+  "version": "1.0.0",
+  "description": "Beautiful YouTube Transcripts with Gemini 1.5 Flash 8B LLM",
+  "main": "code.js",
+  "type": "module",
+  "scripts": {
+    "start": "npx serve",
+    "build": "mkdir -p dist && cp -r *.html *.js *.css *.png *.svg site.webmanifest examples dist/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "youtube",
+    "transcripts", 
+    "gemini",
+    "llm"
+  ],
+  "author": "Laurent Denoue",
+  "license": "MIT",
+  "dependencies": {
+    "localforage": "^1.10.0",
+    "serve": "^14.2.1"
+  }
+}

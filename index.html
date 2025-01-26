@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Secure Terminal Access</title>
+    <style>
+      body {
+        background-color: #000;
+        color: #fff;
+        font-family: "Courier New", Courier, monospace;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      #terminal {
+        width: 80%;
+        max-width: 600px;
+        background-color: #222;
+        border: 2px solid #f00;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        border-radius: 5px;
+      }
+
+      h1 {
+        text-align: center;
+        color: #f00;
+        margin-bottom: 20px;
+      }
+
+      .input-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .input-group label {
+        color: #f00;
+        margin-right: 10px;
+        width: 80px;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        background-color: #333;
+        border: none;
+        color: #fff;
+        flex-grow: 1;
+        padding: 8px;
+        font-size: 16px;
+        border-radius: 3px;
+      }
+
+      button {
+        background-color: #f00;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 3px;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #ff3333;
+      }
+
+      .loading {
+        text-align: center;
+        margin-top: 10px;
+        color: #f00;
+        display: none;
+      }
+
+      .loading.show {
+        display: block;
+      }
+
+      .loading span {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background-color: #f00;
+        margin: 0 4px;
+        border-radius: 50%;
+        animation: loading 1.2s infinite ease-in-out;
+      }
+
+      .loading span:nth-child(1) {
+        animation-delay: 0s;
+      }
+
+      .loading span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .loading span:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes loading {
+        0% {
+          transform: translateY(0);
+          opacity: 0.4;
+        }
+        50% {
+          transform: translateY(-10px);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(0);
+          opacity: 0.4;
+        }
+      }
+
+      footer {
+        position: fixed;
+        bottom: 20px;
+        width: 100%;
+        text-align: center;
+        color: #f00;
+        font-size: 18px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="terminal">
+      <h1>Secure Terminal Access</h1>
+      <div class="input-group">
+        <label for="username">Login:</label>
+        <input type="text" id="username" autofocus />
+      </div>
+      <div class="input-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" />
+      </div>
+      <button onclick="authenticate()">Go ahead</button>
+      <div class="loading">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+
+    <footer>Coded by Must@f@</footer>
+
+    <script>
+      const usernameInput = document.getElementById("username");
+      const passwordInput = document.getElementById("password");
+      const loading = document.querySelector(".loading");
+
+      usernameInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          passwordInput.focus();
+        }
+      });
+
+      passwordInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          authenticate();
+        }
+      });
+
+      function authenticate() {
+        const username = usernameInput.value;
+        const password = passwordInput.value;
+
+        loading.classList.add("show");
+        usernameInput.disabled = true;
+        passwordInput.disabled = true;
+
+        // Simulate authentication delay
+        setTimeout(() => {
+          if (username === "rootkamal" && password === "rootkamalpwd") {
+            window.location.href = "index2.html";
+          } else {
+            alert("Incorrect username or password.");
+            usernameInput.value = "";
+            passwordInput.value = "";
+            usernameInput.disabled = false;
+            passwordInput.disabled = false;
+            loading.classList.remove("show");
+            usernameInput.focus();
+          }
+        }, 1000);
+      }
+    </script>
+  </body>
+</html>
