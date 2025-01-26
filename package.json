@@ -1,5 +1,5 @@
 {
-  "name": "readable-transcripts",
+  "name": "YouTube Analyzer Ultra v.1",
   "version": "1.0.0",
   "description": "Beautiful YouTube Transcripts with Gemini 1.5 Flash 8B LLM",
   "main": "code.js",
@@ -15,7 +15,7 @@
     "gemini",
     "llm"
   ],
-  "author": "Laurent Denoue",
+  "author": "Must@f@",
   "license": "MIT",
   "dependencies": {
     "localforage": "^1.10.0",
