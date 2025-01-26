@@ -1626,26 +1626,46 @@ downloadBtn.onclick = async () => {
   URL.revokeObjectURL(url)
 }
 
+// Assuming this is part of the code.js file
+
 async function updateModel(newProvider) {
   if (newProvider !== currentProvider) {
-    await window.localforage.removeItem(videoId)
-    window.location.href = `./?id=${videoId}&model=${newProvider}&language=${selectLanguage.value}`
+    currentProvider = newProvider;
+    await window.localforage.removeItem(videoId);
+    // Update the model without reloading the page
+    model = await getGenerativeModel(API_KEY, { model: newProvider });
+    jsonModel = await getGenerativeModel(API_KEY, { model: newProvider, generationConfig: jsonGenerationConfig });
+    console.log(`Model switched to: ${newProvider}`);
   }
 }
 
-clearCacheBtn.onclick = async () => {
-  await window.localforage.removeItem(videoId)
-  window.location.reload()
-}
+// Event listener for the model selection dropdown
+selectProvider.onchange = () => updateModel(selectProvider.value);
 
-for (let l in llmProviders) {
-  let option = document.createElement('option')
-  option.value = l
-  option.textContent = l
-  option.selected = l === currentProvider
-  selectProvider.appendChild(option)
-}
-selectProvider.onchange = () => updateModel(selectProvider.value)
+// Event listeners for the buttons to set API keys and models
+geminiBtn.onclick = () => {
+  const result = prompt("Enter your Gemini API_KEY", API_KEY || '');
+  if (result) {
+    window.localStorage.API_KEY = result;
+  }
+  updateModel('gemini-1.5-flash-8b');
+};
+
+groqBtn.onclick = () => {
+  const result = prompt("Enter your Groq API_KEY", GROQ_API_KEY || '');
+  if (result) {
+    window.localStorage.GROQ_API_KEY = result;
+  }
+  updateModel('llama-3.1-8b-instant');
+};
+
+deepInfraBtn.onclick = () => {
+  const result = prompt("Enter your DeepInfra API_KEY", DEEP_INFRA_API_KEY || '');
+  if (result) {
+    window.localStorage.DEEP_INFRA_API_KEY = result;
+  }
+  updateModel('meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo');
+};
 
 summaryBtn.onclick = () => {
   summaryBtn.disabled = true
