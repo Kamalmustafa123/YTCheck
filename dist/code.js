@@ -1,6 +1,6 @@
 import { marked } from "https://esm.run/marked"
 import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai"
-import { OpenAI } from "https://cdn.jsdelivr.net/npm/openai@4.73.1/+esm"
+import { OpenAI} from "https://cdn.jsdelivr.net/npm/openai@4.73.1/+esm"
 
 const geminiModels = ['gemini-1.5-flash-8b']
 const geminiModel = geminiModels[0]
@@ -32,7 +32,7 @@ if (DEEP_INFRA_API_KEY) {
 const params = new URLSearchParams(window.location.search)
 let currentProvider = params.get('model') || geminiModel
 
-let languageCode = params.get('language') // || 'en'
+let languageCode = params.get('language')// || 'en'
 const followingAudio = true
 const chapterDelta = 1000
 let chapters = []
@@ -43,187 +43,190 @@ let highlights = []
 let ytPlayer = null
 
 async function initVideoPlayer(videoId) {
-  function onPlayerReady(event) {
-    ytPlayer = event.target;
-  }
-  function onPlayerStateChange(state) {
-    try {
-      // Disable captions completely
-      ytPlayer.unloadModule("captions");
-      ytPlayer.unloadModule("cc");
-    } catch (e) { console.log(e) }
-    if (state.data === 1) {
-      setPlaying(true)
-    } else if (state.data === 2) {
-      setPlaying(false)
+    function onPlayerReady(event) {
+        ytPlayer = event.target;
     }
-  }
-  function onPlayerError(event) {
-    console.log('player error', event.data);
-  }
-
-  const tag = document.createElement("script");
-  tag.src = "https://www.youtube.com/iframe_api";
-  let firstScriptTag = document.getElementsByTagName("script")[0];
-  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-  window.onYouTubeIframeAPIReady = function () {
-    const ytPlayer = new YT.Player("player", {
-      height: "270",
-      width: "480",
-      host: 'https://www.youtube-nocookie.com',
-      videoId: videoId,
-      playerVars: {
-        playsinline: 1,
-        autoplay: 0,
-        loop: 0,
-        controls: 1,
-        disablekb: 0,
-        rel: 0,
-      },
-      events: {
-        "onReady": onPlayerReady,
-        "onStateChange": onPlayerStateChange,
-        "onError": onPlayerError,
-      }
-    });
-    let iframeWindow = ytPlayer.getIframe().contentWindow;
-    window.addEventListener("message", function (event) {
-      if (event.source === iframeWindow) {
-        let data = JSON.parse(event.data);
-        if (data.event === "infoDelivery" && data.info) {
-          if (data.info.currentTime !== undefined) {
-            let time = data.info.currentTime
-            audioTimeUpdate(time)
-          }
+    function onPlayerStateChange(state) {
+        try {
+            // Disable captions completelly
+            ytPlayer.unloadModule("captions");
+            ytPlayer.unloadModule("cc");
+        } catch (e) { console.log(e) }
+        if (state.data === 1) {
+            setPlaying(true)
+        } else if (state.data === 2) {
+            setPlaying(false)
         }
-      }
-    });
-  }
+    }
+    function onPlayerError(event) {
+        console.log('player error', event.data);
+    }
+
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    let firstScriptTag = document.getElementsByTagName("script")[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    window.onYouTubeIframeAPIReady = function () {
+        const ytPlayer = new YT.Player("player", {
+            height: "270",
+            width: "480",
+            host: 'https://www.youtube-nocookie.com',
+            videoId: videoId,
+            playerVars: {
+                playsinline: 1,
+                autoplay: 0,
+                loop: 0,
+                controls: 1,
+                disablekb: 0,
+                rel: 0,
+            },
+            events: {
+                "onReady": onPlayerReady,
+                "onStateChange": onPlayerStateChange,
+                "onError": onPlayerError,
+            }
+        });
+        let iframeWindow = ytPlayer.getIframe().contentWindow;
+        window.addEventListener("message", function (event) {
+            if (event.source === iframeWindow) {
+                let data = JSON.parse(event.data);
+                if (data.event === "infoDelivery" && data.info) {
+                    if (data.info.currentTime !== undefined) {
+                        let time = data.info.currentTime
+                        audioTimeUpdate(time)
+                    }
+                }
+            }
+        });
+    }
 }
 
+
 function endOfSentence2(text) {
-  return text.endsWith('. ') || text.endsWith('? ') || text.endsWith('! ')
+    return text.endsWith('. ') || text.endsWith('? ') || text.endsWith('! ')
 }
 
 function audioTimeUpdate(timeSeconds) {
-  let time = timeSeconds * 1000
-  let ps = document.body.querySelectorAll('.p')
-  let last = -1
-  let lastHighlightedWord = null
-  let lastHighlightedParagraph = null
-  for (let i = 0; i < ps.length; i++) {
-    let p = ps[i]
-    if (p.start !== -1 && p.start <= time)
-      last = i
-    let words = p.querySelectorAll('span')
-    for (let w of words) {
-      if (!w.start)
-        continue
-      const delta = 1000
-      const highlight = w.start >= (time - delta) && w.end <= time + delta
-      if (highlight && !w.classList.contains('highlighted')) {
-        w.classList.add('highlighted')
-        lastHighlightedWord = w
-        lastHighlightedParagraph = p
-      }
-      if (!highlight && w.classList.contains('highlighted'))
-        w.classList.remove('highlighted')
-    }
-  }
-  for (let i = 0; i < ps.length; i++) {
-    let p = ps[i]
-    if (i !== last) {
-      if (p.classList.contains('livep')) {
-        p.classList.remove('livep')
-      }
-    } else {
-      if (!p.classList.contains('livep')) {
-        p.classList.add('livep')
-        if (followingAudio) {
-          let y = p.getBoundingClientRect().top + window.pageYOffset - player.offsetHeight
-          if (jumped) {
-            y = jumped
-            jumped = null
-          }
-          if (userJumps) {
-            userJumps = false
-            window.scrollTo({ left: 0, top: y, behavior: 'smooth' })
-          }
+    let time = timeSeconds * 1000
+    let ps = document.body.querySelectorAll('.p')
+    let last = -1
+    let lastHighlightedWord = null
+    let lastHighlightedParagraph = null
+    for (let i = 0; i < ps.length; i++) {
+        let p = ps[i]
+        if (p.start !== -1 && p.start <= time)
+            last = i
+        let words = p.querySelectorAll('span')
+        for (let w of words) {
+            if (!w.start)
+                continue
+            const delta = 1000
+            const highlight = w.start >= (time - delta) && w.end <= time + delta
+            //let c = []
+            if (highlight && !w.classList.contains('highlighted')) {
+                w.classList.add('highlighted')
+                lastHighlightedWord = w
+                lastHighlightedParagraph = p
+            }
+            if (!highlight && w.classList.contains('highlighted'))
+                w.classList.remove('highlighted')
         }
-      }
     }
-  }
+    for (let i = 0; i < ps.length; i++) {
+        let p = ps[i]
+        if (i !== last) {
+            if (p.classList.contains('livep')) {
+                p.classList.remove('livep')
+            }
+        } else {
+            if (!p.classList.contains('livep')) {
+                p.classList.add('livep')
+                if (followingAudio) {
+                    let y = p.getBoundingClientRect().top + window.pageYOffset - player.offsetHeight
+                    if (jumped) {
+                        y = jumped
+                        jumped = null
+                    }
+                    if (userJumps) {
+                        userJumps = false
+                        window.scrollTo({ left: 0, top: y, behavior: 'smooth' })
+                    }
+                }
+            }
+        }
+    }
 
-  for (let c of chapters) {
-    c.currentChapter = false
-  }
-  for (let i = chapters.length - 1; i >= 0; --i) {
-    if (chapters[i].start <= time) {
-      chapters[i].currentChapter = true
-      break
+    for (let c of chapters) {
+        c.currentChapter = false
     }
-  }
+    for (let i = chapters.length - 1; i >= 0; --i) {
+        if (chapters[i].start <= time) {
+            chapters[i].currentChapter = true
+            break
+        }
+    }
 }
 
 function setPlaying(p) {
+    //console.log('setPlaying',p)
 }
 
 function getGenerativeModel(API_KEY, params) {
-  const genAI = new GoogleGenerativeAI(API_KEY);
-  return genAI.getGenerativeModel(params);
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    return genAI.getGenerativeModel(params);
 }
 
 function chunkText(text, maxWords = 4000) {
-  const words = text.split(/\s+/); // Split the text into words
-  const chunks = [];
-  let currentChunk = [];
-  for (let i = 0; i < words.length; i++) {
-    currentChunk.push(words[i]);
+    const words = text.split(/\s+/); // Split the text into words
+    const chunks = [];
+    let currentChunk = [];
+    for (let i = 0; i < words.length; i++) {
+        currentChunk.push(words[i]);
 
-    if (currentChunk.length >= maxWords || i === words.length - 1) {
-      chunks.push(currentChunk.join(" "));
-      currentChunk = [];
+        if (currentChunk.length >= maxWords || i === words.length - 1) {
+            chunks.push(currentChunk.join(" "));
+            currentChunk = [];
+        }
     }
-  }
 
-  return chunks;
+    return chunks;
 }
 
 async function ytsr(q) {
-  if (!q)
-    return {}
-  let trimmed = q.trim()
-  if (!(trimmed.length > 0))
-    return {}
-  try {
-    let response = await fetchData('https://vercel-scribe.vercel.app/api/hello?url=' + encodeURIComponent('https://www.youtube.com/search?q=' + trimmed), true)
-    let html = response.data
-    let preamble = "var ytInitialData = {"
-    let idx1 = html.indexOf(preamble)
-    let sub = html.substring(idx1)
-    let idx2 = sub.indexOf("};")
-    let ytInitialData = sub.substring(0, idx2 + 1)
-    let jsonString = ytInitialData.substring(preamble.length - 1)
-    let json = JSON.parse(jsonString)
-    let res = json.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents
-    let results = []
-    for (let r of res) {
-      if (!(r.itemSectionRenderer && r.itemSectionRenderer.contents))
-        continue
-      let items = r.itemSectionRenderer.contents
-      for (let i of items) {
-        if (i.videoRenderer && i.videoRenderer.publishedTimeText) {
-          let r = i.videoRenderer
-          let obj = { id: r.videoId, name: r.title.runs[0].text, duration: r.lengthText.simpleText, publishedTimeText: r.publishedTimeText.simpleText }
-          results.push(obj)
+    if (!q)
+        return {}
+    let trimmed = q.trim()
+    if (!(trimmed.length > 0))
+        return {}
+    try {
+        let response = await fetchData('https://vercel-scribe.vercel.app/api/hello?url=' + encodeURIComponent('https://www.youtube.com/search?q=' + trimmed), true)
+        let html = response.data
+        let preamble = "var ytInitialData = {"
+        let idx1 = html.indexOf(preamble)
+        let sub = html.substring(idx1)
+        let idx2 = sub.indexOf("};")
+        let ytInitialData = sub.substring(0, idx2 + 1)
+        let jsonString = ytInitialData.substring(preamble.length - 1)
+        let json = JSON.parse(jsonString)
+        let res = json.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents
+        let results = []
+        for (let r of res) {
+            if (!(r.itemSectionRenderer && r.itemSectionRenderer.contents))
+                continue
+            let items = r.itemSectionRenderer.contents
+            for (let i of items) {
+                if (i.videoRenderer && i.videoRenderer.publishedTimeText) {
+                    let r = i.videoRenderer
+                    let obj = { id: r.videoId, name: r.title.runs[0].text, duration: r.lengthText.simpleText, publishedTimeText: r.publishedTimeText.simpleText }
+                    results.push(obj)
+                }
+            }
         }
-      }
+        return { items: results }
+    } catch (e) {
+        console.log('setSearch error', e)
+        return {}
     }
-    return { items: results }
-  } catch (e) {
-    console.log('setSearch error', e)
-    return {}
-  }
 }
 
 function spin(text = '') {
@@ -233,14 +236,14 @@ function spin(text = '') {
 function displayItems(jsonItems) {
   items.innerHTML = ''
   for (let item of jsonItems) {
-    let d = document.createElement('div')
-    d.className = 'r'
-    let duration = item.duration
-    if (typeof duration === 'number') {
-      duration = msToTime(duration * 1000)
-    }
-    d.innerHTML = `<a href="./?id=${item.id || item.videoId}"><img src="https://img.youtube.com/vi/${item.id || item.videoId}/mqdefault.jpg"></a><div><a href="?id=${item.id || item.videoId}">${item.name || item.title}</a><div>${duration} - ${item.publishedTimeText || item.published || new Date(item.publishDate).toLocaleDateString()}</div></div><br>`
-    items.appendChild(d)
+      let d = document.createElement('div')
+      d.className = 'r'
+      let duration = item.duration
+      if (typeof duration === 'number') {
+        duration = msToTime(duration * 1000)
+      }
+      d.innerHTML = `<a href="./?id=${item.id || item.videoId}"><img src="https://img.youtube.com/vi/${item.id || item.videoId}/mqdefault.jpg"></a><div><a href="?id=${item.id || item.videoId}">${item.name || item.title}</a><div>${duration} - ${item.publishedTimeText || item.published || new Date(item.publishDate).toLocaleDateString()}</div></div><br>`
+      items.appendChild(d)
   }
   items.style.display = 'flex'
 }
@@ -279,66 +282,45 @@ function timeout(ms) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Clear cache and reload the page
-    clearCacheBtn.onclick = async () => {
-        await window.localforage.removeItem(videoId);
-        window.location.reload();
-    };
+  // Clear cache and reload the page
+  clearCacheBtn.onclick = async () => {
+    await window.localforage.removeItem(videoId);
+    window.location.reload();
+  };
 
-    // Populate the model provider dropdown and set up the onchange event
-    for (let l in llmProviders) {
-        let option = document.createElement('option');
-        option.value = l;
-        option.textContent = l;
-        option.selected = l === currentProvider;
-        selectProvider.appendChild(option);
+  // Populate the model provider dropdown and set up the onchange event
+  for (let l in llmProviders) {
+    let option = document.createElement('option');
+    option.value = l;
+    option.textContent = l;
+    option.selected = l === currentProvider;
+    selectProvider.appendChild(option);
+  }
+  selectProvider.onchange = () => updateModel(selectProvider.value);
+
+  // Summarize the content
+  summaryBtn.onclick = () => {
+    summaryBtn.disabled = true;
+    summaryBtn.textContent = 'Summarizing...';
+    computeSummary(json, videoId, transcript, languageCode, vocab);
+  };
+
+  // Handle search term if present in the URL
+  let searchTerm = params.get('q');
+  if (searchTerm > '') {
+    q.value = searchTerm;
+    search(searchTerm, false);
+  }
+
+  // Event listener for form submission
+  myform.addEventListener('submit', (evt) => {
+    evt.preventDefault(); // Prevent default form submission
+    const query = q.value.trim();
+    if (query) {
+      search(query, false); // Call the search function with the query without redirecting
     }
-    selectProvider.onchange = () => updateModel(selectProvider.value);
-
-    // Summarize the content
-    summaryBtn.onclick = () => {
-        summaryBtn.disabled = true;
-        summaryBtn.textContent = 'Summarizing...';
-        computeSummary(json, videoId, transcript, languageCode, vocab);
-    };
-
-    // Handle search term if present in the URL
-    let searchTerm = params.get('q');
-    if (searchTerm > '') {
-        q.value = searchTerm;
-        search(searchTerm, false);
-    }
-
-    // Event listener for language switcher
-selectLanguage.onchange = () => {
-    const newLanguage = selectLanguage.value;
-    const newUrl = updateUrlParameter('language', newLanguage);
-    updateUrlWithoutReload(newUrl);
-    fetchLanguageContent(newLanguage);
-};
-
-// Helper functions
-function updateUrlParameter(param, value) {
-    const url = new URL(window.location.href);
-    url.searchParams.set(param, value);
-    return url.href;
-}
-
-function updateUrlWithoutReload(url) {
-    history.replaceState(null, '', url);
-}
-
-function fetchLanguageContent(language) {
-    const contentUrl = `/path/to/content?language=${language}`;
-    fetch(contentUrl)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('content').innerHTML = data.content;
-            document.getElementById('title').innerText = data.title;
-        })
-        .catch(error => console.error('Error fetching language content:', error));
-}
-
+  });
+});
 let apiCalls = 0
 let outputTokens = 0
 let inputTokens = 0
