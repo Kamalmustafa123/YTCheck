@@ -137,11 +137,25 @@
 
       // Make an AJAX request to handle the search query
       fetch(`/search?q=${encodeURIComponent(query)}`)
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
         .then(data => {
           // Handle the response data
           console.log(data);
           // Update the UI with the search results
+          // You can add code here to display the results in the 'items' div
+          const itemsDiv = document.getElementById('items');
+          itemsDiv.innerHTML = ''; // Clear previous results
+
+          data.results.forEach(result => {
+            const item = document.createElement('div');
+            item.textContent = result.title; // Modify as needed
+            itemsDiv.appendChild(item);
+          });
         })
         .catch(error => {
           console.error('Error:', error);
