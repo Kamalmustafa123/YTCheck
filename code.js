@@ -1467,8 +1467,12 @@ async function punctuate(videoId, preferedLanguageCode) {
       option.selected = l === languageCode
       selectLanguage.appendChild(option)
     }
-    selectLanguage.onchange = () => window.location.href = './?id=' + videoId + '&language=' + selectLanguage.value + (currentProvider ? '&model=' + currentProvider : '')
-
+selectLanguage.onchange = async () => {
+  const newLanguage = selectLanguage.value;
+  languageCode = newLanguage;
+  // Re-fetch and display content in new language without page reload
+  await punctuate(videoId, newLanguage);
+}
     await localforage.setItem(videoId, json)
     transcript = json[languageCode].chunks.map(c => c.text).join(' ')
     window.originalText = transcript
