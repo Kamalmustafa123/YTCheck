@@ -318,13 +318,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
- // Event listener for language switcher
-selectLanguage.onchange = () => {
+  // Event listener for language switcher
+  selectLanguage.onchange = () => {
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.set('language', selectLanguage.value);
     history.replaceState(null, '', currentUrl.href); // Update the URL without refreshing
-    window.location.href = currentUrl.href; // Redirect to the updated URL
-};
+    window.location.reload(); // Reload the page to apply the new language
+  };
+});
 
 let apiCalls = 0
 let outputTokens = 0
