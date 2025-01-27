@@ -467,14 +467,14 @@ footer {
   max-width: 100px;
   background-color: transparent;
   border: 0;
-  color: white;
+  color: red;
   white-space: nowrap; /* Prevent text wrapping */
   text-overflow: ellipsis; /* Add ellipsis to truncated text */
   overflow: hidden;
   outline: none;
 }
 .bg {
-  background-color: black;  /* Changed from var(--byellow) to black */
+  background-color: white;  /* Changed from var(--byellow) to black */
   height: 48px;
   padding: 0 16px;
   border-radius: 50rem;
