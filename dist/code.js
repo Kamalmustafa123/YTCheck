@@ -310,13 +310,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Event listener for language switcher
-    selectLanguage.onchange = () => {
-        const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set('language', selectLanguage.value);
-        history.replaceState(null, '', currentUrl.href); // Update the URL without refreshing
-        window.location.href = currentUrl.href; // Redirect to the updated URL
-    };
-});
+selectLanguage.onchange = () => {
+    const newLanguage = selectLanguage.value;
+    const newUrl = updateUrlParameter('language', newLanguage);
+    updateUrlWithoutReload(newUrl);
+    fetchLanguageContent(newLanguage);
+};
+
+// Helper functions
+function updateUrlParameter(param, value) {
+    const url = new URL(window.location.href);
+    url.searchParams.set(param, value);
+    return url.href;
+}
+
+function updateUrlWithoutReload(url) {
+    history.replaceState(null, '', url);
+}
+
+function fetchLanguageContent(language) {
+    const contentUrl = `/path/to/content?language=${language}`;
+    fetch(contentUrl)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('content').innerHTML = data.content;
+            document.getElementById('title').innerText = data.title;
+        })
+        .catch(error => console.error('Error fetching language content:', error));
+}
 
 let apiCalls = 0
 let outputTokens = 0
