@@ -249,20 +249,35 @@ function displayItems(jsonItems) {
 }
 
 async function search(q, redirect = true) {
-  if (redirect)
-    window.location.href = './?q=' + encodeURIComponent(q)
-  items.style.display = 'flex'
-  items.innerHTML = spin('Searching')
-  let json = await ytsr(q)
-    if (json.error)
-        items.innerHTML = 'Error: ' + json.error
-    else if (json.items) {
-        displayItems(json.items)
+  // Check if the input is a YouTube URL
+  const youtubeUrlPattern = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+  if (youtubeUrlPattern.test(q)) {
+    // Extract the video ID or query from the URL
+    const url = new URL(q);
+    const videoId = url.searchParams.get('v');
+    if (videoId) {
+      q = videoId;
+    } else {
+      const path = url.pathname.split('/').pop();
+      q = path;
     }
+  }
+
+  if (redirect) {
+    window.location.href = './?q=' + encodeURIComponent(q);
+  }
+  items.style.display = 'flex';
+  items.innerHTML = spin('Searching');
+  let json = await ytsr(q);
+  if (json.error) {
+    items.innerHTML = 'Error: ' + json.error;
+  } else if (json.items) {
+    displayItems(json.items);
+  }
 }
 
 function timeout(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 let apiCalls = 0
