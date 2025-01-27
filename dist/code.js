@@ -325,9 +325,11 @@ document.addEventListener('DOMContentLoaded', () => {
   selectLanguage.onchange = () => {
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.set('language', selectLanguage.value);
-    window.location.href = currentUrl.href;
+    history.replaceState(null, '', currentUrl.href); // Update the URL without refreshing
+    window.location.reload(); // Reload the page to apply the new language
   };
 });
+
 
 let apiCalls = 0
 let outputTokens = 0
