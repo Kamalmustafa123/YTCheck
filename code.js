@@ -320,7 +320,15 @@ document.addEventListener('DOMContentLoaded', () => {
       search(query, false); // Call the search function with the query without redirecting
     }
   });
+
+  // Event listener for language switcher
+  selectLanguage.onchange = () => {
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('language', selectLanguage.value);
+    window.location.href = currentUrl.href;
+  };
 });
+
 let apiCalls = 0
 let outputTokens = 0
 let inputTokens = 0
