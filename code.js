@@ -265,14 +265,15 @@ async function search(q, redirect = true) {
 
   if (redirect) {
     window.location.href = './?q=' + encodeURIComponent(q);
-  }
-  items.style.display = 'flex';
-  items.innerHTML = spin('Searching');
-  let json = await ytsr(q);
-  if (json.error) {
-    items.innerHTML = 'Error: ' + json.error;
-  } else if (json.items) {
-    displayItems(json.items);
+  } else {
+    items.style.display = 'flex';
+    items.innerHTML = spin('Searching');
+    let json = await ytsr(q);
+    if (json.error) {
+      items.innerHTML = 'Error: ' + json.error;
+    } else if (json.items) {
+      displayItems(json.items);
+    }
   }
 }
 
@@ -280,6 +281,46 @@ function timeout(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  // Clear cache and reload the page
+  clearCacheBtn.onclick = async () => {
+    await window.localforage.removeItem(videoId);
+    window.location.reload();
+  };
+
+  // Populate the model provider dropdown and set up the onchange event
+  for (let l in llmProviders) {
+    let option = document.createElement('option');
+    option.value = l;
+    option.textContent = l;
+    option.selected = l === currentProvider;
+    selectProvider.appendChild(option);
+  }
+  selectProvider.onchange = () => updateModel(selectProvider.value);
+
+  // Summarize the content
+  summaryBtn.onclick = () => {
+    summaryBtn.disabled = true;
+    summaryBtn.textContent = 'Summarizing...';
+    computeSummary(json, videoId, transcript, languageCode, vocab);
+  };
+
+  // Handle search term if present in the URL
+  let searchTerm = params.get('q');
+  if (searchTerm > '') {
+    q.value = searchTerm;
+    search(searchTerm, false);
+  }
+
+  // Event listener for form submission
+  myform.addEventListener('submit', (evt) => {
+    evt.preventDefault(); // Prevent default form submission
+    const query = q.value.trim();
+    if (query) {
+      search(query, false); // Call the search function with the query without redirecting
+    }
+  });
+});
 let apiCalls = 0
 let outputTokens = 0
 let inputTokens = 0
