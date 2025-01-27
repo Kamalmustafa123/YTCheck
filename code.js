@@ -318,48 +318,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
- document.addEventListener('DOMContentLoaded', () => {
-    // Other initialization code...
-
-    // Clear cache and reload the page
-    clearCacheBtn.onclick = async () => {
-        await window.localforage.removeItem(videoId);
-        window.location.reload();
-    };
-
-    // Populate the model provider dropdown and set up the onchange event
-    for (let l in llmProviders) {
-        let option = document.createElement('option');
-        option.value = l;
-        option.textContent = l;
-        option.selected = l === currentProvider;
-        selectProvider.appendChild(option);
-    }
-    selectProvider.onchange = () => updateModel(selectProvider.value);
-
-    // Summarize the content
-    summaryBtn.onclick = () => {
-        summaryBtn.disabled = true;
-        summaryBtn.textContent = 'Summarizing...';
-        computeSummary(json, videoId, transcript, languageCode, vocab);
-    };
-
-    // Handle search term if present in the URL
-    let searchTerm = params.get('q');
-    if (searchTerm > '') {
-        q.value = searchTerm;
-        search(searchTerm, false);
-    }
-
-    // Event listener for language switcher
-    selectLanguage.onchange = () => {
-        const currentUrl = new URL(window.location.href);
-        currentUrl.searchParams.set('language', selectLanguage.value);
-        currentUrl.searchParams.set('id', videoId); // Ensure `id` is preserved
-        currentUrl.searchParams.set('model', currentProvider); // Ensure `model` is preserved
-        history.replaceState(null, '', currentUrl.href); // Update the URL without refreshing
-        window.location.reload(); // Reload the page to apply the new language
-    };
+  // Event listener for language switcher
+  selectLanguage.onchange = () => {
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('language', selectLanguage.value);
+    history.replaceState(null, '', currentUrl.href); // Update the URL without refreshing
+    window.location.reload(); // Reload the page to apply the new language
+  };
 });
 
 let apiCalls = 0
