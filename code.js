@@ -279,53 +279,65 @@ function timeout(ms) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Clear cache and reload the page
-  clearCacheBtn.onclick = async () => {
-    await window.localforage.removeItem(videoId);
-    window.location.reload();
-  };
+    // Clear cache and reload the page
+    clearCacheBtn.onclick = async () => {
+        await window.localforage.removeItem(videoId);
+        window.location.reload();
+    };
 
-  // Populate the model provider dropdown and set up the onchange event
-  for (let l in llmProviders) {
-    let option = document.createElement('option');
-    option.value = l;
-    option.textContent = l;
-    option.selected = l === currentProvider;
-    selectProvider.appendChild(option);
-  }
-  selectProvider.onchange = () => updateModel(selectProvider.value);
-
-  // Summarize the content
-  summaryBtn.onclick = () => {
-    summaryBtn.disabled = true;
-    summaryBtn.textContent = 'Summarizing...';
-    computeSummary(json, videoId, transcript, languageCode, vocab);
-  };
-
-  // Handle search term if present in the URL
-  let searchTerm = params.get('q');
-  if (searchTerm > '') {
-    q.value = searchTerm;
-    search(searchTerm, false);
-  }
-
-  // Event listener for form submission
-  myform.addEventListener('submit', (evt) => {
-    evt.preventDefault(); // Prevent default form submission
-    const query = q.value.trim();
-    if (query) {
-      search(query, false); // Call the search function with the query without redirecting
+    // Populate the model provider dropdown and set up the onchange event
+    for (let l in llmProviders) {
+        let option = document.createElement('option');
+        option.value = l;
+        option.textContent = l;
+        option.selected = l === currentProvider;
+        selectProvider.appendChild(option);
     }
-  });
+    selectProvider.onchange = () => updateModel(selectProvider.value);
 
-  // Event listener for language switcher
-  selectLanguage.onchange = () => {
-    const currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.set('language', selectLanguage.value);
-    history.replaceState(null, '', currentUrl.href); // Update the URL without refreshing
-    window.location.reload(); // Reload the page to apply the new language
-  };
-});
+    // Summarize the content
+    summaryBtn.onclick = () => {
+        summaryBtn.disabled = true;
+        summaryBtn.textContent = 'Summarizing...';
+        computeSummary(json, videoId, transcript, languageCode, vocab);
+    };
+
+    // Handle search term if present in the URL
+    let searchTerm = params.get('q');
+    if (searchTerm > '') {
+        q.value = searchTerm;
+        search(searchTerm, false);
+    }
+
+    // Event listener for language switcher
+selectLanguage.onchange = () => {
+    const newLanguage = selectLanguage.value;
+    const newUrl = updateUrlParameter('language', newLanguage);
+    updateUrlWithoutReload(newUrl);
+    fetchLanguageContent(newLanguage);
+};
+
+// Helper functions
+function updateUrlParameter(param, value) {
+    const url = new URL(window.location.href);
+    url.searchParams.set(param, value);
+    return url.href;
+}
+
+function updateUrlWithoutReload(url) {
+    history.replaceState(null, '', url);
+}
+
+function fetchLanguageContent(language) {
+    const contentUrl = `/path/to/content?language=${language}`;
+    fetch(contentUrl)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('content').innerHTML = data.content;
+            document.getElementById('title').innerText = data.title;
+        })
+        .catch(error => console.error('Error fetching language content:', error));
+}
 
 let apiCalls = 0
 let outputTokens = 0
